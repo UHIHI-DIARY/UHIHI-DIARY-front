@@ -1,16 +1,19 @@
-import React, { Component } from 'react';
-import { Route } from 'react-router-dom';
-import { Home, Auth } from 'pages';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Register from './pages/Register';
 
-class App extends Component {
-    render() {
-        return (
-            <div>
-                <Route exact path="/" component={Home}/>
-                <Route path="/auth" component={Auth}/>
-            </div>
-        );
-    }
+
+function App() {
+  return (
+      <Router>
+        <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login/>} />
+            <Route path="/register" element={<Register/>} />
+        </Routes>
+      </Router>
+  );
 }
 
 export default App;
