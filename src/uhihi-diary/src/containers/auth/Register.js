@@ -1,7 +1,7 @@
 /* eslint-disable */
 
 import React, { useEffect, useState } from 'react';
-import { AuthContent, InputWithLabel, AuthButton, RightAlignedLink, InputAndButton, ErrorTextBox } from '../../components/auth';
+import { AuthContent, InputWithLabel, AuthButton, RightAlignedLink, InputAndButton, ErrorTextBox, AuthWrapper } from '../../components/auth';
 import axios from 'axios';
 
 function Register() {
@@ -84,6 +84,9 @@ function Register() {
 
     // 인증메일 요청 버튼 클릭
     const emailSendingRequest = (event) => {
+        //test
+        axios.get("/test").then(res=>{console.log(res)}).catch(error=>{console.log(error);});
+        //
         if(emailErrorText === "" && email.length>0){
             if(!alreadyEmailCheck && !isSending){
                 event.preventDefault();
