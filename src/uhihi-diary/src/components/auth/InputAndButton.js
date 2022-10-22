@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import oc from 'open-color';
-import { shadow } from '../../lib/styleUtils';
+import { pointColor, shadow } from '../../lib/styleUtils';
 
 // 두개가 함께 있을땐 상단 (그 사이) 에 여백을 준다
 const Wrapper = styled.div`
@@ -41,7 +41,7 @@ const ButtonWrapper = styled.div`
     padding-top: 0.6rem;
     padding-bottom: 0.5rem;
 
-    background: ${oc.teal[6]};
+    background: ${pointColor[1]};
     color: white;
 
     text-align: center;
@@ -53,12 +53,12 @@ const ButtonWrapper = styled.div`
     transition: .2s all;
 
     &:hover {
-        background: ${oc.teal[5]};
+        background: ${pointColor[0]};
         ${shadow(0)}
     }
 
     &:active {
-        background: ${oc.teal[7]};
+        background: ${pointColor[0]};
     }
 
     

@@ -30,4 +30,11 @@ export const shadow = (weight) => {
     return shadows[weight];
 };
 
-export const pointColor = ["#F28482","#84A59D"];
+// export const pointColor = ["#F28482","#84A59D"];
+// export const pointColor = ["#FF9190","#B1B1B1"];
+export const pointColor = ["#E69A9A","#B1B1B1"];
+// export const pointColor = ["#F28482","#F7E8C9"];
+//export const pointColor = ["#FCDCDC","#95BCCC"];
+//export const pointColor = ["#95BCCC","#FCDCDC"];
+// export const pointColor = ["#697A98","#8FC8EB"];
+// export const pointColor = ["#8FC8EB","#8FC8EB"];

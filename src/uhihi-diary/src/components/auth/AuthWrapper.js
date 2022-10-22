@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import oc from 'open-color';
-import { shadow } from '../../lib/styleUtils';
+import { pointColor, shadow } from '../../lib/styleUtils';
 import { Link } from 'react-router-dom';
 
 // 화면의 중앙에 위치시킨다
@@ -20,7 +19,7 @@ const ShadowedBox = styled.div`
 
 // 로고
 const LogoWrapper = styled.div`
-    background: ${oc.teal[7]};
+    background: ${pointColor[0]};
     height: 5rem;
     display: flex;
     align-items: center;

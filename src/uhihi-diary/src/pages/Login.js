@@ -5,11 +5,9 @@ import {AuthWrapper} from "../components/auth";
 function Auth() {
     
     return(
-        <div>
-            <AuthWrapper>
-                <Login/>
-            </AuthWrapper>
-        </div>
+        <AuthWrapper>
+            <Login/>
+        </AuthWrapper>
     );
 }
 
