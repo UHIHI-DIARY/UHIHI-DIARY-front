@@ -1,3 +1,4 @@
+import React from 'react';
 import { Login } from '../containers/auth';
 import {AuthWrapper} from "../components/auth";
 

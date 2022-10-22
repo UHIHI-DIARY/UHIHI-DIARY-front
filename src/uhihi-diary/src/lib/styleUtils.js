@@ -29,3 +29,5 @@ export const shadow = (weight) => {
 
     return shadows[weight];
 };
+
+export const pointColor = ["#F28482","#84A59D"];
