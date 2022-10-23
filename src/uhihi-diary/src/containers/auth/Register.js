@@ -25,7 +25,7 @@ function Register() {
     const handleEmailChange = (event) => {
         setEmail(event.target.value);
         // 이메일 규격이 맞는지 확인
-        if(!(/^[0-9a-zA-Z]([-_]?[0-9a-zA-Z])*@[0-9a-zA-Z]*\.[a-zA-Z]{2,3}$/i.test(event.target.value))){
+        if(!(/^[0-9a-zA-Z]([-_]?[0-9a-zA-Z])*@[0-9a-zA-Z.]*\.[a-zA-Z]{2,3}$/i.test(event.target.value))){
             setEmailErrorText("이메일을 적어주세요!");
         }
         else{
@@ -84,9 +84,6 @@ function Register() {
 
     // 인증메일 요청 버튼 클릭
     const emailSendingRequest = (event) => {
-        //test
-        axios.get("/test").then(res=>{console.log(res)}).catch(error=>{console.log(error);});
-        //
         if(emailErrorText === "" && email.length>0){
             if(!alreadyEmailCheck && !isSending){
                 event.preventDefault();
@@ -126,11 +123,11 @@ function Register() {
     useEffect(()=>{
         if(isSending){
             // 서버에 이메일 송신 요청 보내기
-            axios.get("/auth/email-code").then((res)=>{
+            axios.post("/auth/emailcode",{email:email}).then((res)=>{
                 setEmailButtonText("인증 재요청");
             }).catch((error)=>{
                 setIsSending(false);
-                if(error.status === 400 && error.statusText === "EMAIL_REPEAT"){
+                if(error.response.status === 400){
                     setEmailErrorText("이메일이 중복됐어요!");
                 }
                 else{
@@ -144,12 +141,12 @@ function Register() {
     useEffect(()=>{
         if(isChecking){
             // 이메일 확인코드 알맞은지 서버에 확인 요청
-            axios.post("/auth/email-check",{email:email, code:checkcode}).then((res)=>{
+            axios.post("/auth/emailcheck",{email:email, code:checkcode}).then((res)=>{
                 setIsSending(false);
                 setEmailButtonText("인증 완료");
                 setAlreadyEmailCheck(true);
             }).catch((error)=>{
-                if(error.status === 400 && error.statusText === "CODE_ERROR"){
+                if(error.response.status === 400 && error.statusText === "CODE_ERROR"){
                     setEmailErrorText("코드가 틀렸어요!");
                 }
                 else{
@@ -167,7 +164,7 @@ function Register() {
                     alert(`환영합니다 ${nickname}님!!`);
 
                 }).catch((error)=>{
-                    if(error.status === 400){
+                    if(error.response.status === 400){
                         if(error.statusText === "EMAIL_ERROR"){
                             alert("이메일 인증이 만료됐어요! 다시 해주세요...");
                             setEmailButtonText("인증 요청");
