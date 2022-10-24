@@ -28,13 +28,13 @@ function Login() {
 
     useEffect(()=>{
         if(isLoading){
-            axios.post("/auth/login",{email:email, password:password}).then((res)=>{
+            axios.post(process.env.REACT_APP_DB_HOST + "/auth/login",{email:email, password:password}).then((res)=>{
                 const token = res.data.token;
                 localStorage.setItem("uhihiToken",token);
                 setAuthorizationToken(token);
                 navigate("/");
             }).catch((error)=>{
-                if(error.response.status===400){
+                if('response' in error && error.response.status===400){
                     setEmailErrorText("이메일 또는 비밀번호가 틀렸습니다");
                     
                 }

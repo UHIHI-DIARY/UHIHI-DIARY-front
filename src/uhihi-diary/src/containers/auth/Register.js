@@ -110,7 +110,7 @@ function Register() {
     // 회원가입 버튼 클릭
     const handleSubmit = (event) => {
         if(isStandardEmail(email) && isStandardNickname(nickname) && isStandardPassword(password) && passwordCheckErrorText==="" &&
-            email!=="" && nickname !== "" && password !== "" && checkPassword!==""){
+            email!=="" && nickname !== "" && password !== "" && checkPassword!=="" && alreadyEmailCheck){
             event.preventDefault();
             setIsLoading(true);
         }
@@ -125,17 +125,24 @@ function Register() {
     useEffect(()=>{
         if(isSending){
             // 서버에 이메일 송신 요청 보내기
-            axios.post("/auth/emailcode",{email : email}).then((res)=>{
-                console.log(res);
+            axios.post(process.env.REACT_APP_DB_HOST + "/auth/emailcode",{email : email}).then((res)=>{
                 setEmailButtonText("인증 재요청");
+
+                //testcode
+                console.log(res);
+
             }).catch((error)=>{
                 setIsSending(false);
-                if(error.response.status === 400){
+                if('response' in error && error.response.status === 400){
                     setEmailErrorText("이메일이 중복됐어요!");
                 }
                 else{
                     setEmailErrorText("잠시 후에 다시 시도해주세요 ㅠㅠ");
                 }
+
+                //testcode
+                console.log(error.response);
+                
             });
         }
     }, [isSending]);
@@ -144,18 +151,25 @@ function Register() {
     useEffect(()=>{
         if(isChecking){
             // 이메일 확인코드 알맞은지 서버에 확인 요청
-            axios.post("/auth/emailcheck",{email:email, code:checkcode}).then((res)=>{
+            axios.post(process.env.REACT_APP_DB_HOST + "/auth/emailcheck",{email:email, code:checkcode}).then((res)=>{
                 setIsSending(false);
                 setEmailButtonText("인증 완료");
                 setAlreadyEmailCheck(true);
+
+                //testcode
+                console.log(res);
+
             }).catch((error)=>{
                 setIsChecking(false);
-                if(error.response.status === 400 && error.statusText === "CODE_ERROR"){
+                if('response' in error && error.response.status === 400){
                     setEmailErrorText("코드가 틀렸어요!");
                 }
                 else{
                     setEmailErrorText("잠시 후에 다시 시도해주세요 ㅠㅠ");
                 }
+
+                //testcode
+                console.log(error.response);
             });
         }
     }, [isChecking]);
@@ -164,15 +178,19 @@ function Register() {
     useEffect(()=>{
         (async function(){
             if(isLoading){
-                axios.post("/auth/register",{email:email, password:password, nickname:nickname, code:checkcode}).then((res)=>{
+                axios.post(process.env.REACT_APP_DB_HOST + "/auth/register",{email:email, password:password, nickname:nickname, code:checkcode}).then((res)=>{
+                    
+                    //testcode
+                    console.log(res);
+
                     alert(`환영합니다 ${nickname}님!!`);
                     const token = res.data.token;
                     localStorage.setItem("uhihiToken",token);
                     setAuthorizationToken(token);
-                    navigate("/");
-
+                    navigate("/"); 
+                    
                 }).catch((error)=>{
-                    if(error.response.status === 400){
+                    if('response' in error && error.response.status === 400){
                         if(error.statusText === "EMAIL_ERROR"){
                             alert("이메일 인증이 만료됐어요! 다시 해주세요...");
                             setEmailButtonText("인증 요청");
@@ -190,7 +208,11 @@ function Register() {
                     else{
                         alert("잠시 후에 다시 시도해주세요 ㅠㅠ");
                     }
+
+                    //testcode
+                    console.log(res.response);
                 });
+
             setIsLoading(false);
             }
         })();
