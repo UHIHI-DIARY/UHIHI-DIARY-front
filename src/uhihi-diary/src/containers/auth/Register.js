@@ -1,11 +1,13 @@
 /* eslint-disable */
 
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AuthContent, InputWithLabel, AuthButton, RightAlignedLink, InputAndButton, ErrorTextBox, AuthWrapper } from '../../components/auth';
+import { isNoneErrorCharInPassword, isStandardEmail, isStandardNickname, isStandardPassword } from '../../lib/ErrorManager';
 import axios from 'axios';
 
 function Register() {
-
+    const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [checkcode, setCheckcode] = useState("");
     const [password, setPassword] = useState("");
@@ -25,7 +27,7 @@ function Register() {
     const handleEmailChange = (event) => {
         setEmail(event.target.value);
         // 이메일 규격이 맞는지 확인
-        if(!(/^[0-9a-zA-Z]([-_]?[0-9a-zA-Z])*@[0-9a-zA-Z.]*\.[a-zA-Z]{2,3}$/i.test(event.target.value))){
+        if(!isStandardEmail(event.target.value)){
             setEmailErrorText("이메일을 적어주세요!");
         }
         else{
@@ -41,11 +43,11 @@ function Register() {
         setPassword(event.target.value);
         // 비밀번호 규격 맞는지 확인
         let pw = event.target.value;
-        if(!(/^(?=.*[0-9])(?=.*[a-zA-Z]).{8,20}$/.test(pw))){
-            setPasswordErrorText("비밀번호에는 8~20자로 이뤄지고, 알파벳과 숫자가 꼭 들어가야해요!");
-        }
-        else if(pw.match(/[^0-9a-zA-Z`~!@#$%^&*()-=_+]/)){
+        if(!isNoneErrorCharInPassword){
             setPasswordErrorText("들어갈 수 없는 문자가 있어요 ㅠㅠ");
+        }
+        else if(!isStandardPassword(pw)){
+            setPasswordErrorText("비밀번호에는 8~20자로 이뤄지고, 알파벳과 숫자가 꼭 들어가야해요!");
         }
         else{
             setPasswordErrorText("");
@@ -74,7 +76,7 @@ function Register() {
 
     const handleNicknameChange = (event) => {
         setNickname(event.target.value);
-        if(!(/^[a-zA-Z가-힇0-9]{2,8}$/.test(event.target.value))){
+        if(!isStandardNickname(event.target.value)){
             setNicknameErrorText("닉네임은 2~8자의 영어, 한국어, 숫자로 이뤄져요!");
         }
         else{
@@ -84,15 +86,15 @@ function Register() {
 
     // 인증메일 요청 버튼 클릭
     const emailSendingRequest = (event) => {
-        if(emailErrorText === "" && email.length>0){
+        if(isStandardEmail(email) && email.length>0){
+            
             if(!alreadyEmailCheck && !isSending){
                 event.preventDefault();
                 setIsSending(true);
             }
             else if(!alreadyEmailCheck){
                 event.preventDefault();
-                setIsSending(false);
-                setIsSending(true);
+                new Promise((resolve)=>{setIsSending(false);resolve();}).then(()=>{setIsSending(true)});
             }
         }
     }
@@ -107,7 +109,7 @@ function Register() {
 
     // 회원가입 버튼 클릭
     const handleSubmit = (event) => {
-        if(emailErrorText==="" && nicknameErrorText==="" && passwordErrorText==="" && passwordCheckErrorText==="" &&
+        if(isStandardEmail(email) && isStandardNickname(nickname) && isStandardPassword(password) && passwordCheckErrorText==="" &&
             email!=="" && nickname !== "" && password !== "" && checkPassword!==""){
             event.preventDefault();
             setIsLoading(true);
@@ -123,7 +125,8 @@ function Register() {
     useEffect(()=>{
         if(isSending){
             // 서버에 이메일 송신 요청 보내기
-            axios.post("/auth/emailcode",{email:email}).then((res)=>{
+            axios.post("/auth/emailcode",{email : email}).then((res)=>{
+                console.log(res);
                 setEmailButtonText("인증 재요청");
             }).catch((error)=>{
                 setIsSending(false);
@@ -146,6 +149,7 @@ function Register() {
                 setEmailButtonText("인증 완료");
                 setAlreadyEmailCheck(true);
             }).catch((error)=>{
+                setIsChecking(false);
                 if(error.response.status === 400 && error.statusText === "CODE_ERROR"){
                     setEmailErrorText("코드가 틀렸어요!");
                 }
@@ -162,6 +166,10 @@ function Register() {
             if(isLoading){
                 axios.post("/auth/register",{email:email, password:password, nickname:nickname, code:checkcode}).then((res)=>{
                     alert(`환영합니다 ${nickname}님!!`);
+                    const token = res.data.token;
+                    localStorage.setItem("uhihiToken",token);
+                    setAuthorizationToken(token);
+                    navigate("/");
 
                 }).catch((error)=>{
                     if(error.response.status === 400){
@@ -183,7 +191,7 @@ function Register() {
                         alert("잠시 후에 다시 시도해주세요 ㅠㅠ");
                     }
                 });
-                setIsLoading(false);
+            setIsLoading(false);
             }
         })();
     }, [isLoading]);
