@@ -3,6 +3,19 @@ import styled from 'styled-components';
 import { pointColor, shadow } from '../../lib/styleUtils';
 import { Link } from 'react-router-dom';
 
+const AuthWrapper = ({children}) => (
+    <Positioner>
+        <ShadowedBox>
+            <LogoWrapper>
+                <Logo to="/">UHIHI Diary</Logo>
+            </LogoWrapper>
+            <Contents>
+                {children}
+            </Contents>
+        </ShadowedBox>
+    </Positioner>
+);
+
 // 화면의 중앙에 위치시킨다
 const Positioner = styled.div`
     position: absolute;
@@ -40,18 +53,5 @@ const Contents = styled.div`
     padding: 2rem;
     height: auto;
 `;
-
-const AuthWrapper = ({children}) => (
-    <Positioner>
-        <ShadowedBox>
-            <LogoWrapper>
-                <Logo to="/">UHIHI Diary</Logo>
-            </LogoWrapper>
-            <Contents>
-                {children}
-            </Contents>
-        </ShadowedBox>
-    </Positioner>
-);
 
 export default AuthWrapper;

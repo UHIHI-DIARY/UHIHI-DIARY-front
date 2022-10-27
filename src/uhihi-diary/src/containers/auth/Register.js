@@ -1,241 +1,182 @@
 /* eslint-disable */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContent, InputWithLabel, AuthButton, RightAlignedLink, InputAndButton, ErrorTextBox, AuthWrapper } from '../../components/auth';
+import { FullWindowLoading } from '../../components/common';
 import { isNoneErrorCharInPassword, isStandardEmail, isStandardNickname, isStandardPassword } from '../../lib/ErrorManager';
 import axios from 'axios';
+import { AuthAPI } from '../../api/Auth';
 
 function Register() {
     const navigate = useNavigate();
+    let checkcode = "";
+    let nickname = "";
+    let password = "";
+    let checkPassword = "";
     const [email, setEmail] = useState("");
-    const [checkcode, setCheckcode] = useState("");
-    const [password, setPassword] = useState("");
-    const [checkPassword, setCheckPassword] = useState("");
-    const [nickname, setNickname] = useState("");
     const [emailErrorText, setEmailErrorText] = useState("");
     const [nicknameErrorText, setNicknameErrorText] = useState("");
-    const [passwordErrorText, setPasswordErrorText] = useState("");
+    const [passwordErrorText, setPasswordErrorText] = useState("비밀번호에는 8~20자로 이뤄지고, 알파벳과 숫자가 꼭 들어가야해요!");
     const [passwordCheckErrorText, setPasswordCheckErrorText] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    const [isChecking, setIsChecking] = useState(false);
-    const [isSending, setIsSending] = useState(false);
+    const [checkStatus, setCheckStatus] = useState(0);
     const [emailButtonText, setEmailButtonText] = useState("인증 요청");
-    const [alreadyEmailCheck, setAlreadyEmailCheck] = useState(false);
-
+    const [waitSendEmail, setWaitSendEmail] = useState(false);
+    const [waitCertifyEmail, setWaitCertifyEmail] = useState(false);
+    const [waitRegister, setWaitRegister] = useState(false);
 
     const handleEmailChange = (event) => {
         setEmail(event.target.value);
-        // 이메일 규격이 맞는지 확인
-        if(!isStandardEmail(event.target.value)){
-            setEmailErrorText("이메일을 적어주세요!");
-        }
-        else{
-            setEmailErrorText("");
-        }
-      };
-
-      const handleCheckcodeChange = (event) => {
-        setCheckcode(event.target.value);
-      };
-
-    const handlePasswordChange = (event) => {
-        setPassword(event.target.value);
-        // 비밀번호 규격 맞는지 확인
-        let pw = event.target.value;
-        if(!isNoneErrorCharInPassword){
-            setPasswordErrorText("들어갈 수 없는 문자가 있어요 ㅠㅠ");
-        }
-        else if(!isStandardPassword(pw)){
-            setPasswordErrorText("비밀번호에는 8~20자로 이뤄지고, 알파벳과 숫자가 꼭 들어가야해요!");
-        }
-        else{
-            setPasswordErrorText("");
-        }
-
-        // 비밀번호와 비밀번호 확인이 같은지 확인
-        if(checkPassword!=="" && checkPassword!==event.target.value){
-            setPasswordCheckErrorText("앞서 적은 비밀번호랑 같게 해주세요!");
-        }
-        else{
-            setPasswordCheckErrorText("");
-        }
-    };
-
-    const handleCheckPasswordChange = (event) => {
-        setCheckPassword(event.target.value);
-
-        // 비밀번호와 비밀번호 확인이 같은지 확인
-        if(event.target.value!=="" && event.target.value!==password){
-            setPasswordCheckErrorText("앞서 적은 비밀번호랑 같게 해주세요!");
-        }
-        else{
-            setPasswordCheckErrorText("");
-        }
-    };
-
-    const handleNicknameChange = (event) => {
-        setNickname(event.target.value);
-        if(!isStandardNickname(event.target.value)){
-            setNicknameErrorText("닉네임은 2~8자의 영어, 한국어, 숫자로 이뤄져요!");
-        }
-        else{
-            setNicknameErrorText("");
-        }
-    };
+    }
 
     // 인증메일 요청 버튼 클릭
     const emailSendingRequest = (event) => {
-        if(isStandardEmail(email) && email.length>0){
-            
-            if(!alreadyEmailCheck && !isSending){
-                event.preventDefault();
-                setIsSending(true);
+        if(isStandardEmail(email) && email.length>0 && !waitSendEmail){
+            event.preventDefault();
+            if(checkStatus !== 2){
+                handlePostEmailcode(email);
             }
-            else if(!alreadyEmailCheck){
-                event.preventDefault();
-                new Promise((resolve)=>{setIsSending(false);resolve();}).then(()=>{setIsSending(true)});
-            }
+        }
+        else{
+            setEmailErrorText("이메일을 적어주세요!");
         }
     }
 
     // 번호 인증 요청 버튼 클릭
     const emailCheckingRequest = (event) => {
-        if(isSending && !alreadyEmailCheck){
+        checkcode = document.getElementById("check-email").value;
+        if(checkStatus === 1 && checkcode.length === 6){
             event.preventDefault();
-            setIsChecking(true);
+            handlePostEmailcheck(email,checkcode);
+        }
+        else{
+            setEmailErrorText("6자리의 인증코드를 입력해주세요!");
         }
     }
 
     // 회원가입 버튼 클릭
     const handleSubmit = (event) => {
-        if(isStandardEmail(email) && isStandardNickname(nickname) && isStandardPassword(password) && passwordCheckErrorText==="" &&
-            email!=="" && nickname !== "" && password !== "" && checkPassword!=="" && alreadyEmailCheck){
+        nickname = document.getElementById("username").value;
+        password = document.getElementById("password").value;
+        checkPassword = document.getElementById("passwordConfirm").value;
+        if(isStandardEmail(email) && isStandardNickname(nickname) && isStandardPassword(password) && password === checkPassword &&
+            email!=="" && nickname !== "" && password !== "" && checkPassword!=="" && checkStatus === 2){
             event.preventDefault();
-            setIsLoading(true);
+            handlePostRegister(email,password,nickname,checkcode);
         }
         else{
-            if(email==="") setEmailErrorText("이메일을 적어주세요!");
-            if(nickname==="") setNicknameErrorText("닉네임은 2~8자의 영어, 한국어, 숫자로 이뤄져요!");
-            if(password==="") setPasswordErrorText("비밀번호에는 8~20자로 이뤄지고, 알파벳과 숫자가 꼭 들어가야해요!");
+            if(email==="" || !isStandardEmail(email)) setEmailErrorText("이메일을 적어주세요!");
+            else setEmailErrorText("");
+
+            if(nickname==="" || !isStandardNickname(nickname)) setNicknameErrorText("닉네임은 2~8자의 영어, 한국어, 숫자로 이뤄져요!");
+            else setNicknameErrorText("");
+
+            if(!isNoneErrorCharInPassword(password)) setPasswordErrorText("들어갈 수 없는 문자가 있어요!");
+            else if(password==="" || !isStandardPassword(password)) setPasswordErrorText("비밀번호에는 8~20자로 이뤄지고, 알파벳과 숫자가 꼭 들어가야해요!");
+            else setPasswordErrorText("");
+
+            if(password!==checkPassword) setPasswordCheckErrorText("비밀번호와 일치시켜주세요!");
+            else setPasswordCheckErrorText("");
         }
     }
 
-    // 인증 이메일 송신 요청 (emailSandingRequest 에서 접근)
-    useEffect(()=>{
-        if(isSending){
-            // 서버에 이메일 송신 요청 보내기
-            axios.post(process.env.REACT_APP_DB_HOST + "/auth/emailcode",{email : email}).then((res)=>{
+    const handlePostEmailcode = (email) => {
+        (async function(){
+            try{
+                setWaitSendEmail(true);
+                await AuthAPI.postAuthEmailcode(email);
                 setEmailButtonText("인증 재요청");
-
-                //testcode
-                console.log(res);
-
-            }).catch((error)=>{
-                setIsSending(false);
-                if('response' in error && error.response.status === 400){
+                setCheckStatus(1);
+            }catch(err){
+                if('response' in err && err.response.status === 400){
                     setEmailErrorText("이메일이 중복됐어요!");
                 }
                 else{
                     setEmailErrorText("잠시 후에 다시 시도해주세요 ㅠㅠ");
                 }
+            }finally{
+                setWaitSendEmail(false);
+            }
+        })();
+    }
 
-                //testcode
-                console.log(error.response);
-                
-            });
-        }
-    }, [isSending]);
-
-    // 이메일 확인코드 체크 요청 (emailCheckingReqeust에서 접근)
-    useEffect(()=>{
-        if(isChecking){
-            // 이메일 확인코드 알맞은지 서버에 확인 요청
-            axios.post(process.env.REACT_APP_DB_HOST + "/auth/emailcheck",{email:email, code:checkcode}).then((res)=>{
-                setIsSending(false);
+    const handlePostEmailcheck = (email, code) => {
+        (async function(){
+            try{
+                setWaitCertifyEmail(true);
+                //let data = await AuthAPI.postAuthEmailcheck(email, code);
+                setEmailErrorText("");
                 setEmailButtonText("인증 완료");
-                setAlreadyEmailCheck(true);
-
-                //testcode
-                console.log(res);
-
-            }).catch((error)=>{
-                setIsChecking(false);
-                if('response' in error && error.response.status === 400){
+                setCheckStatus(2);
+            } catch(err){
+                if('response' in err && err.response.status === 400){
                     setEmailErrorText("코드가 틀렸어요!");
                 }
                 else{
                     setEmailErrorText("잠시 후에 다시 시도해주세요 ㅠㅠ");
                 }
-
-                //testcode
-                console.log(error.response);
-            });
-        }
-    }, [isChecking]);
-
-    // 회원가입 요청 (handleSubmit에서 접근)
-    useEffect(()=>{
-        (async function(){
-            if(isLoading){
-                axios.post(process.env.REACT_APP_DB_HOST + "/auth/register",{email:email, password:password, nickname:nickname, code:checkcode}).then((res)=>{
-                    
-                    //testcode
-                    console.log(res);
-
-                    alert(`환영합니다 ${nickname}님!!`);
-                    const token = res.data.token;
-                    localStorage.setItem("uhihiToken",token);
-                    setAuthorizationToken(token);
-                    navigate("/"); 
-                    
-                }).catch((error)=>{
-                    if('response' in error && error.response.status === 400){
-                        if(error.statusText === "EMAIL_ERROR"){
-                            alert("이메일 인증이 만료됐어요! 다시 해주세요...");
-                            setEmailButtonText("인증 요청");
-                            setIsSending(false);
-                            setAlreadyEmailCheck(false);
-                            setIsChecking(false);
-                        }
-                        if(error.statusText === "PASSWORD_ERROR"){
-                            alert("비밀번호를 확인해주세요!");
-                        }
-                        if(error.statusText === "NICKNAME_ERROR"){
-                            alert("닉네임을 확인해주세요!");
-                        }
-                    }
-                    else{
-                        alert("잠시 후에 다시 시도해주세요 ㅠㅠ");
-                    }
-
-                    //testcode
-                    console.log(res.response);
-                });
-
-            setIsLoading(false);
+            }finally{
+                setWaitCertifyEmail(false);
             }
         })();
-    }, [isLoading]);
+    }
+
+    const handlePostRegister = (email, password, nickname, checkcode) => {
+        (async function(){
+            try{
+                setWaitRegister(true);
+                let res = await AuthAPI.postAuthRegister(email, password, nickname, checkcode);
+                alert(`환영합니다 ${nickname}님!!`);
+                const token = res.data.token;
+                localStorage.setItem("uhihiToken",token);
+                setAuthorizationToken(token);
+                navigate("/"); 
+            }catch(err){
+                if('response' in err && err.response.status === 400){
+                    if(err.statusText === "EMAIL_ERROR"){
+                        alert("이메일 인증이 만료됐어요! 다시 해주세요...");
+                        setEmailButtonText("인증 요청");
+                        setIsSending(false);
+                        setCheckStatus(0);
+                    }
+                    if(err.statusText === "PASSWORD_ERROR"){
+                        alert("비밀번호를 확인해주세요!");
+                    }
+                    if(err.statusText === "NICKNAME_ERROR"){
+                        alert("닉네임을 확인해주세요!");
+                    }
+                }
+                else{
+                    alert("잠시 후에 다시 시도해주세요 ㅠㅠ");
+                }
+            }finally{
+                setWaitRegister(false);
+            }
+        })();
+    }
 
     return (
         <AuthContent title="회원가입">
-            {isSending || alreadyEmailCheck?
+            {waitSendEmail &&
+            <FullWindowLoading/>
+            }
+            {checkStatus !== 0 ?
             // 인증 요청 이후에는 이메일 수정 금지
             <InputAndButton label="이메일" inputText={emailButtonText} onClick={emailSendingRequest} name="email" placeholder="이메일" value={email} readonly/>
             :
             <InputAndButton label="이메일" inputText={emailButtonText} onClick={emailSendingRequest} name="email" placeholder="이메일" onChange={handleEmailChange}/>
             }
-            {isSending && 
+            {checkStatus == 1 && 
             // 인증 요청중일 때만 나타나는 블럭
-            <InputAndButton label="이메일 인증" inputText="인증하기" onClick={emailCheckingRequest} name="check-email" placeholder="인증 코드" onChange={handleCheckcodeChange}/>
+            <InputAndButton label="이메일 인증" inputText="인증하기" onClick={emailCheckingRequest} id="check-email" name="check-email" placeholder="인증 코드"/>
             }
             <ErrorTextBox text={emailErrorText} display={emailErrorText==="" ? "none" : "block"}/>
-            <InputWithLabel label="닉네임" name="username" placeholder="닉네임" onChange={handleNicknameChange}/>
+            <InputWithLabel label="닉네임" id="username" name="username" placeholder="닉네임"/>
             <ErrorTextBox text={nicknameErrorText} display={nicknameErrorText==="" ? "none" : "block"}/>
-            <InputWithLabel label="비밀번호" name="password" placeholder="비밀번호" type="password" onChange={handlePasswordChange}/>
+            <InputWithLabel label="비밀번호" id="password" name="password" placeholder="비밀번호" type="password"/>
             <ErrorTextBox text={passwordErrorText} display={passwordErrorText==="" ? "none" : "block"}/>
-            <InputWithLabel label="비밀번호 확인" name="passwordConfirm" placeholder="비밀번호 확인" type="password" onChange={handleCheckPasswordChange}/>
+            <InputWithLabel label="비밀번호 확인" id="passwordConfirm" name="passwordConfirm" placeholder="비밀번호 확인" type="password"/>
             <ErrorTextBox text={passwordCheckErrorText} display={passwordCheckErrorText==="" ? "none" : "block"}/>
             <AuthButton onClick={handleSubmit}>회원가입</AuthButton>
             <RightAlignedLink to="/login">로그인</RightAlignedLink>

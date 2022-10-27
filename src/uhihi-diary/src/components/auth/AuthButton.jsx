@@ -3,6 +3,12 @@ import styled from 'styled-components';
 import oc from 'open-color';
 import { pointColor, shadow } from '../../lib/styleUtils';
 
+const AuthButton = ({children, onClick}) => (
+    <Wrapper onClick={onClick}>
+        {children}
+    </Wrapper>
+);
+
 const Wrapper = styled.div`
     margin-top: 1rem;
     padding-top: 0.6rem;
@@ -29,11 +35,5 @@ const Wrapper = styled.div`
     }
 
 `;
-
-const AuthButton = ({children, onClick}) => (
-    <Wrapper onClick={onClick}>
-        {children}
-    </Wrapper>
-);
 
 export default AuthButton;
