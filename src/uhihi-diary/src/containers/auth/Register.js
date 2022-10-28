@@ -133,15 +133,15 @@ function Register() {
                 navigate("/"); 
             }catch(err){
                 if('response' in err && err.response.status === 400){
-                    if(err.statusText === "EMAIL_ERROR"){
+                    if(err.response.statusText === "EMAIL_ERROR"){
                         alert("이메일 인증이 만료됐어요! 다시 해주세요...");
                         setEmailButtonText("인증 요청");
                         setCheckStatus(0);
                     }
-                    if(err.statusText === "PASSWORD_ERROR"){
+                    if(err.response.statusText === "PASSWORD_ERROR"){
                         alert("비밀번호를 확인해주세요!");
                     }
-                    if(err.statusText === "NICKNAME_ERROR"){
+                    if(err.response.statusText === "NICKNAME_ERROR"){
                         alert("닉네임을 확인해주세요!");
                     }
                 }
