@@ -1,9 +1,9 @@
 /* eslint-disable */
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContent, InputWithLabel, AuthButton, RightAlignedLink, ErrorTextBox } from '../../components/auth';
-import axios from 'axios';
+import { RowCollocateRight } from '../../components/common';
 import setAuthorizationToken from '../../lib'
 import { AuthAPI } from '../../api/Auth';
 
@@ -45,7 +45,10 @@ function Login() {
             <InputWithLabel label="비밀번호" name="password" placeholder="비밀번호" type="password" onChange={handlePasswordChange}/>
             <ErrorTextBox text={emailErrorText} display={emailErrorText==="" ? "none" : "block"}/>
             <AuthButton onClick={handleSubmit}>로그인</AuthButton>
-            <RightAlignedLink to="/register">회원가입</RightAlignedLink>
+            <RowCollocateRight>
+                <RightAlignedLink to="/register">회원가입</RightAlignedLink>
+                <RightAlignedLink to="/password-search">비밀번호 찾기</RightAlignedLink>
+            </RowCollocateRight>
         </AuthContent>
     );
 }

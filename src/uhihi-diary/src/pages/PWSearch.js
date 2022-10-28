@@ -1,11 +1,11 @@
 import React from 'react';
-import { Register } from '../containers/auth';
 import {AuthWrapper} from "../components/auth";
+import { PWSearch } from '../containers/auth';
 
 const Auth = () => (
     <AuthWrapper>
-        <Register/>
+        <PWSearch/>
     </AuthWrapper>
-);
+)
 
 export default Auth;

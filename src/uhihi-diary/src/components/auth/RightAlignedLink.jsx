@@ -11,6 +11,7 @@ const RightAlignedLink = ({to, children}) => (
 
 const Aligner = styled.div`
     margin-top: 1rem;
+    margin-left:10px;
     text-align: right;
 `;
 

@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import PageLayout from './components/Layout/PageLayout';
+import PWSearch from './pages/PWSearch';
 
 const PREFIX_PATH = "UHIHI-DIARY-front";
 
@@ -12,10 +13,10 @@ function App() {
     <PageLayout>
       <Router>
         <Routes>
-          
             <Route path="/" element={<Home />} />
             <Route path="/login/" element={<Login/>} />
             <Route path="/register/" element={<Register/>} />
+            <Route path="/password-search/" element={<PWSearch/>}/>
         </Routes>
       </Router>
     </PageLayout>

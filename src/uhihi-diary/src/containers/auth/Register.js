@@ -1,12 +1,12 @@
-/* eslint-disable */
 
-import React, { useEffect, useState, useRef } from 'react';
+
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AuthContent, InputWithLabel, AuthButton, RightAlignedLink, InputAndButton, ErrorTextBox, AuthWrapper } from '../../components/auth';
+import { AuthContent, InputWithLabel, AuthButton, RightAlignedLink, InputAndButton, ErrorTextBox } from '../../components/auth';
 import { FullWindowLoading } from '../../components/common';
 import { isNoneErrorCharInPassword, isStandardEmail, isStandardNickname, isStandardPassword } from '../../lib/ErrorManager';
-import axios from 'axios';
 import { AuthAPI } from '../../api/Auth';
+import { setAuthorizationToken } from '../../lib';
 
 function Register() {
     const navigate = useNavigate();
@@ -19,7 +19,6 @@ function Register() {
     const [nicknameErrorText, setNicknameErrorText] = useState("");
     const [passwordErrorText, setPasswordErrorText] = useState("비밀번호에는 8~20자로 이뤄지고, 알파벳과 숫자가 꼭 들어가야해요!");
     const [passwordCheckErrorText, setPasswordCheckErrorText] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
     const [checkStatus, setCheckStatus] = useState(0);
     const [emailButtonText, setEmailButtonText] = useState("인증 요청");
     const [waitSendEmail, setWaitSendEmail] = useState(false);
@@ -105,7 +104,7 @@ function Register() {
         (async function(){
             try{
                 setWaitCertifyEmail(true);
-                //let data = await AuthAPI.postAuthEmailcheck(email, code);
+                let data = await AuthAPI.postAuthEmailcheck(email, code);
                 setEmailErrorText("");
                 setEmailButtonText("인증 완료");
                 setCheckStatus(2);
@@ -137,7 +136,6 @@ function Register() {
                     if(err.statusText === "EMAIL_ERROR"){
                         alert("이메일 인증이 만료됐어요! 다시 해주세요...");
                         setEmailButtonText("인증 요청");
-                        setIsSending(false);
                         setCheckStatus(0);
                     }
                     if(err.statusText === "PASSWORD_ERROR"){
@@ -158,16 +156,14 @@ function Register() {
 
     return (
         <AuthContent title="회원가입">
-            {waitSendEmail &&
-            <FullWindowLoading/>
-            }
+            {(waitSendEmail || waitCertifyEmail || waitRegister) && <FullWindowLoading/>}
             {checkStatus !== 0 ?
             // 인증 요청 이후에는 이메일 수정 금지
             <InputAndButton label="이메일" inputText={emailButtonText} onClick={emailSendingRequest} name="email" placeholder="이메일" value={email} readonly/>
             :
             <InputAndButton label="이메일" inputText={emailButtonText} onClick={emailSendingRequest} name="email" placeholder="이메일" onChange={handleEmailChange}/>
             }
-            {checkStatus == 1 && 
+            {checkStatus === 1 && 
             // 인증 요청중일 때만 나타나는 블럭
             <InputAndButton label="이메일 인증" inputText="인증하기" onClick={emailCheckingRequest} id="check-email" name="check-email" placeholder="인증 코드"/>
             }

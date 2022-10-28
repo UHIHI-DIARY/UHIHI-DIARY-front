@@ -2,8 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import { pointColor } from '../../lib/styleUtils';
 
-const ErrorTextBox = ({text, display})=>(
-    <Wrapper display={display}>
+const ErrorTextBox = ({text, display, ...arg})=>(
+    <Wrapper display={display} {...arg}>
         {text}
     </Wrapper>
 );

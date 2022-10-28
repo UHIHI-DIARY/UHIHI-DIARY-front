@@ -75,5 +75,24 @@ export const AuthAPI = {
     }catch (err) {
       throw err;
     }
+  },
+
+  /**
+   * **POST** /auth/tmp/password
+   * @param {{email: string}} 
+   * @returns Promise<{{
+   *    none
+   * }}> articles
+   * `200` : success
+   * `400` : fail
+   * `500` : fail
+   */
+  postAuthTmpPassword: async (email) => {
+    try{
+      let { data } = await axios.post(process.env.REACT_APP_DB_HOST + "/auth/tmp/password",{email});
+      return data;
+    }catch(err){
+      throw err;
+    }
   }
 }

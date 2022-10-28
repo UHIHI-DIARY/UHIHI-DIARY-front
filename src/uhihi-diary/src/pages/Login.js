@@ -2,13 +2,10 @@ import React from 'react';
 import { Login } from '../containers/auth';
 import {AuthWrapper} from "../components/auth";
 
-function Auth() {
-    
-    return(
+const Auth = () => (
         <AuthWrapper>
             <Login/>
         </AuthWrapper>
-    );
-}
+)
 
 export default Auth;
