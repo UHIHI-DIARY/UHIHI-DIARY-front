@@ -7,7 +7,7 @@ import { RowCollocateRight } from '../../components/common';
 import setAuthorizationToken from '../../lib'
 import { AuthAPI } from '../../api/Auth';
 
-function Login() {
+const Login = () => {
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");

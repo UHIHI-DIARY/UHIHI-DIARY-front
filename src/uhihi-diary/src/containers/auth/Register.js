@@ -8,7 +8,7 @@ import { isNoneErrorCharInPassword, isStandardEmail, isStandardNickname, isStand
 import { AuthAPI } from '../../api/Auth';
 import { setAuthorizationToken } from '../../lib';
 
-function Register() {
+const Register = () => {
     const navigate = useNavigate();
     let checkcode = "";
     let nickname = "";
@@ -104,7 +104,7 @@ function Register() {
         (async function(){
             try{
                 setWaitCertifyEmail(true);
-                let data = await AuthAPI.postAuthEmailcheck(email, code);
+                await AuthAPI.postAuthEmailcheck(email, code);
                 setEmailErrorText("");
                 setEmailButtonText("인증 완료");
                 setCheckStatus(2);

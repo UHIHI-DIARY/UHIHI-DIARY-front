@@ -6,7 +6,6 @@ import { isStandardEmail } from '../../lib/ErrorManager';
 import { FullWindowLoading } from '../../components/common';
 
 const PWSearch = () => {
-
     let emailErrorText = "";
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
