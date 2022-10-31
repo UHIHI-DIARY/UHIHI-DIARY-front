@@ -2,10 +2,11 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AuthContent, InputWithLabel, AuthButton, RightAlignedLink, ErrorTextBox } from '../../components/auth';
-import { RowCollocateRight } from '../../components/common';
-import setAuthorizationToken from '../../lib'
-import { AuthAPI } from '../../api/Auth';
+
+import { AuthContent, InputWithLabel, AuthButton, RightAlignedLink, ErrorTextBox } from 'components/auth';
+import { RowCollocateRight } from 'components/common';
+import { setAuthorizationToken } from 'lib';
+import { AuthAPI } from 'api/Auth';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -25,11 +26,15 @@ const Login = () => {
         event.preventDefault();
         
         try {
-            data = await AuthAPI.postAuthLogin(email, password);
-            localStorage.setItem("uhihiToken", data.token);
-            setAuthorizationToken(token);
+            let data = await AuthAPI.postAuthLogin(email, password);
+            let token = data["token"];
+            let refreshToken = data["refreshToken"];
+            await localStorage.setItem("uhihiToken", token);
+            await setAuthorizationToken();
             navigate("/");
+            location.reload();
         } catch (error) {
+            console.log(error);
             if('response' in error && error.response.status===400){
                 setEmailErrorText("이메일 또는 비밀번호가 틀렸습니다");
             }

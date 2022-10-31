@@ -1,6 +1,7 @@
 import React from 'react';
-import {AuthWrapper} from "../components/auth";
-import { PWSearch } from '../containers/auth';
+
+import {AuthWrapper} from "components/auth";
+import { PWSearch } from 'containers/auth';
 
 const Auth = () => (
     <AuthWrapper>

@@ -1,5 +1,6 @@
 import React from 'react';
-import Auth from './Login';
+
+import Auth from 'pages/Login';
 
 const Home = () => {
     if(localStorage.getItem("uhihiToken")!=null){

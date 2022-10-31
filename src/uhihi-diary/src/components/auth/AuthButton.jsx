@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import oc from 'open-color';
-import { pointColor, shadow } from '../../lib/styleUtils';
+
+import { pointColor, shadow } from 'lib/styleUtils';
 
 const AuthButton = ({children, onClick}) => (
     <Wrapper onClick={onClick}>

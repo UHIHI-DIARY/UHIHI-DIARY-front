@@ -1,16 +1,16 @@
-
+/* eslint-disable */
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AuthContent, InputWithLabel, AuthButton, RightAlignedLink, InputAndButton, ErrorTextBox } from '../../components/auth';
-import { FullWindowLoading } from '../../components/common';
-import { isNoneErrorCharInPassword, isStandardEmail, isStandardNickname, isStandardPassword } from '../../lib/ErrorManager';
-import { AuthAPI } from '../../api/Auth';
-import { setAuthorizationToken } from '../../lib';
+
+import { AuthContent, InputWithLabel, AuthButton, RightAlignedLink, InputAndButton, ErrorTextBox } from 'components/auth';
+import { FullWindowLoading } from 'components/common';
+import { isNoneErrorCharInPassword, isStandardEmail, isStandardNickname, isStandardPassword } from 'lib/ErrorManager';
+import { AuthAPI } from 'api/Auth';
+import { setAuthorizationToken } from 'lib';
 
 const Register = () => {
     const navigate = useNavigate();
-    let checkcode = "";
     let nickname = "";
     let password = "";
     let checkPassword = "";
@@ -20,6 +20,7 @@ const Register = () => {
     const [passwordErrorText, setPasswordErrorText] = useState("비밀번호에는 8~20자로 이뤄지고, 알파벳과 숫자가 꼭 들어가야해요!");
     const [passwordCheckErrorText, setPasswordCheckErrorText] = useState("");
     const [checkStatus, setCheckStatus] = useState(0);
+    const [checkcode, setCheckcode] = useState("");
     const [emailButtonText, setEmailButtonText] = useState("인증 요청");
     const [waitSendEmail, setWaitSendEmail] = useState(false);
     const [waitCertifyEmail, setWaitCertifyEmail] = useState(false);
@@ -44,14 +45,21 @@ const Register = () => {
 
     // 번호 인증 요청 버튼 클릭
     const emailCheckingRequest = (event) => {
-        checkcode = document.getElementById("check-email").value;
-        if(checkStatus === 1 && checkcode.length === 6){
-            event.preventDefault();
-            handlePostEmailcheck(email,checkcode);
-        }
-        else{
-            setEmailErrorText("6자리의 인증코드를 입력해주세요!");
-        }
+        (async function(){
+            await setCheckcode(document.getElementById("check-email").value)
+            let checkCode = document.getElementById("check-email").value;
+            if(checkStatus === 1 && checkCode.length === 6){
+                event.preventDefault();
+                handlePostEmailcheck(email,checkCode);
+            }
+            else if(checkStatus !== 1){
+                setEmailErrorText("");
+            }
+            else{
+                setEmailErrorText("6자리의 인증코드를 입력해주세요!");
+            }
+        })();
+        
     }
 
     // 회원가입 버튼 클릭
@@ -86,6 +94,7 @@ const Register = () => {
                 setWaitSendEmail(true);
                 await AuthAPI.postAuthEmailcode(email);
                 setEmailButtonText("인증 재요청");
+                setEmailErrorText("");
                 setCheckStatus(1);
             }catch(err){
                 if('response' in err && err.response.status === 400){
@@ -127,11 +136,15 @@ const Register = () => {
                 setWaitRegister(true);
                 let res = await AuthAPI.postAuthRegister(email, password, nickname, checkcode);
                 alert(`환영합니다 ${nickname}님!!`);
-                const token = res.data.token;
-                localStorage.setItem("uhihiToken",token);
-                setAuthorizationToken(token);
-                navigate("/"); 
+                const token = res["token"];
+                const refreshToken = res["refreshToken"];
+                await localStorage.setItem("uhihiToken",token);
+                await localStorage.setItem("uhihiRefreshToken",refreshToken);
+                await setAuthorizationToken();
+                navigate("/");
+                location.reload();
             }catch(err){
+                console.log(err);
                 if('response' in err && err.response.status === 400){
                     if(err.response.statusText === "EMAIL_ERROR"){
                         alert("이메일 인증이 만료됐어요! 다시 해주세요...");

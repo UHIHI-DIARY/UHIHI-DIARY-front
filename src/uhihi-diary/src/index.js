@@ -1,11 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App';
-
-import store from './store';
 import { Provider } from 'react-redux';
 import { CookiesProvider } from 'react-cookie';
-import setAuthorizationToken from './lib/setAuthorizationToken';
+
+import App from 'App';
+import store from 'store';
+import setAuthorizationToken from 'lib/setAuthorizationToken';
 
 setAuthorizationToken(localStorage.uhihiToken);
 

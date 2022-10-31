@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import { pointColor, shadow } from '../../lib/styleUtils';
 import { Link } from 'react-router-dom';
+
+import { pointColor, shadow } from 'lib/styleUtils';
 
 const AuthWrapper = ({children}) => (
     <Positioner>
